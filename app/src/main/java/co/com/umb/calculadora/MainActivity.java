@@ -52,9 +52,11 @@ public class MainActivity extends AppCompatActivity {
 
     private void InitializeEvents() {
 
+        // Este evento gestiona la escritura de digitos en la pantalla
         View.OnClickListener writeDigitEvent = new View.OnClickListener() {
             public void onClick(View element) {
                 String expression = (String) txtExpression.getText();
+                // Se permite la escritura de hasta 20 caracteres en pantalla
                 if(expression.length() < 21) {
                     String symbol = (String) ((Button) element).getText();
                     txtExpression.setText(expression + symbol);
@@ -62,11 +64,14 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
+        // Este evento gestiona la escritura de símbolos en la pantalla
         View.OnClickListener writeSymbolEvent = new View.OnClickListener() {
             public void onClick(View element) {
                 String expression = (String) txtExpression.getText();
+                // No se permite ingreso de símbolos en la primera ni última posición
                 if( expression.length() > 0 && expression.length() < 20 ) {
                     CharSequence lastChar = expression.subSequence(expression.length()-1, expression.length());
+                    // No permite el ingreso de dos símbolos consecutivos
                     if(android.text.TextUtils.isDigitsOnly(lastChar)) {
                         String symbol = (String) ((Button) element).getText();
                         txtExpression.setText(expression + symbol);
@@ -75,6 +80,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
+        // Este evento elimina un caracter a la vez
         View.OnClickListener backEvent = new View.OnClickListener() {
             public void onClick(View element) {
                 String expression = (String) txtExpression.getText();
@@ -85,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
+        // Este evento limpia la pantalla
         View.OnClickListener clearEvent = new View.OnClickListener() {
             public void onClick(View element) {
                 txtExpression.setText("");
@@ -92,6 +99,31 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
+        // Este evento carga la siguiente operación del historial
+        View.OnClickListener upEvent = new View.OnClickListener() {
+            public void onClick(View element) {
+                // TODO
+            }
+        };
+
+        // Este evento carga la última operación del historial
+        View.OnClickListener downEvent = new View.OnClickListener() {
+            public void onClick(View element) {
+                // TODO
+            }
+        };
+
+        // Este evento procesa la fórmula y calcula el resultado
+        View.OnClickListener EqualEvent = new View.OnClickListener() {
+            public void onClick(View element) {
+                // TODO: Procesar la fórmula
+                // TODO: Calcular el resultado
+                // TODO: Guardar la operación realizada en el historial (opcional)
+            }
+        };
+
+        //*** Se agrega la escucha del evento correspondiente a cada botón
+        // Botones de dígitos
         btnZero.setOnClickListener(writeDigitEvent);
         btnOne.setOnClickListener(writeDigitEvent);
         btnTwo.setOnClickListener(writeDigitEvent);
@@ -102,12 +134,17 @@ public class MainActivity extends AppCompatActivity {
         btnSeven.setOnClickListener(writeDigitEvent);
         btnEight.setOnClickListener(writeDigitEvent);
         btnNine.setOnClickListener(writeDigitEvent);
+        // Botones de símbolos
         btnPlus.setOnClickListener(writeSymbolEvent);
         btnMinus.setOnClickListener(writeSymbolEvent);
         btnMulti.setOnClickListener(writeSymbolEvent);
         btnDiv.setOnClickListener(writeSymbolEvent);
         btnComma.setOnClickListener(writeSymbolEvent);
+        // Botones de funciones
         btnBack.setOnClickListener(backEvent);
         btnCE.setOnClickListener(clearEvent);
+        btnUp.setOnClickListener(upEvent);
+        btnDown.setOnClickListener(downEvent);
+        btnEqual.setOnClickListener(EqualEvent);
     }
 }
