@@ -1,10 +1,19 @@
 package co.com.umb.calculadora;
 
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+
+import co.com.umb.calculadora.entities.Record;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -12,6 +21,10 @@ public class MainActivity extends AppCompatActivity {
     private Button btnBack, btnCE, btnUp, btnDown, btnEqual, btnComma;
     private Button btnZero, btnOne, btnTwo, btnThree, btnFour, btnFive, btnSix, btnSeven, btnEight, btnNine;
     private TextView txtExpression, txtResult;
+
+    private List<Record> record = new ArrayList<Record>();
+    private int indexRecord=0;
+    private boolean reWrite=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,11 +68,13 @@ public class MainActivity extends AppCompatActivity {
         // Este evento gestiona la escritura de digitos en la pantalla
         View.OnClickListener writeDigitEvent = new View.OnClickListener() {
             public void onClick(View element) {
+                if(reWrite){ clear();}
                 String expression = (String) txtExpression.getText();
                 // Se permite la escritura de hasta 20 caracteres en pantalla
                 if(expression.length() < 21) {
-                    String symbol = (String) ((Button) element).getText();
-                    txtExpression.setText(expression + symbol);
+                    String digit = (String) ((Button) element).getText();
+                    txtExpression.setText(expression + digit);
+                    reWrite = false;
                 }
             }
         };
@@ -67,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
         // Este evento gestiona la escritura de símbolos en la pantalla
         View.OnClickListener writeSymbolEvent = new View.OnClickListener() {
             public void onClick(View element) {
+
                 String expression = (String) txtExpression.getText();
                 // No se permite ingreso de símbolos en la primera ni última posición
                 if( expression.length() > 0 && expression.length() < 20 ) {
@@ -75,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
                     if(android.text.TextUtils.isDigitsOnly(lastChar)) {
                         String symbol = (String) ((Button) element).getText();
                         txtExpression.setText(expression + symbol);
+                        reWrite = false;
                     }
                 }
             }
@@ -87,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
                 if(expression.length() > 0) {
                     expression = expression.substring(0, expression.length() - 1);
                     txtExpression.setText(expression);
+                    reWrite=false;
                 }
             }
         };
@@ -94,31 +112,54 @@ public class MainActivity extends AppCompatActivity {
         // Este evento limpia la pantalla
         View.OnClickListener clearEvent = new View.OnClickListener() {
             public void onClick(View element) {
-                txtExpression.setText("");
-                txtResult.setText("0");
+               clear();
             }
         };
 
         // Este evento carga la siguiente operación del historial
         View.OnClickListener upEvent = new View.OnClickListener() {
             public void onClick(View element) {
-                // TODO
+                if( (indexRecord) > 0) {
+                    indexRecord -= 1;
+                    txtExpression.setText(record.get(indexRecord).Expression);
+                    txtResult.setText(record.get(indexRecord).Result);
+                    reWrite = true;
+                }
             }
         };
 
         // Este evento carga la última operación del historial
         View.OnClickListener downEvent = new View.OnClickListener() {
             public void onClick(View element) {
-                // TODO
+                if( (indexRecord+1) < record.size()) {
+                    indexRecord += 1;
+                    txtExpression.setText(record.get(indexRecord).Expression);
+                    txtResult.setText(record.get(indexRecord).Result);
+                    reWrite = true;
+                }
             }
         };
 
         // Este evento procesa la fórmula y calcula el resultado
         View.OnClickListener EqualEvent = new View.OnClickListener() {
             public void onClick(View element) {
-                // TODO: Procesar la fórmula
-                // TODO: Calcular el resultado
-                // TODO: Guardar la operación realizada en el historial (opcional)
+
+                String expression = txtExpression.getText().toString();
+                CharSequence lastChar = expression.subSequence(expression.length()-1, expression.length());
+                // No permite el cálculo de expresiones terminadas con símbolo
+                if(android.text.TextUtils.isDigitsOnly(lastChar)) {
+                    // Realiza el cálculo de la expresión
+                    double result = compute(expression);
+                    txtResult.setText(String.valueOf(result));
+
+                    // Guardar la operación realizada en el historial (opcional)
+                    Record rec = new Record();
+                    rec.Expression = expression;
+                    rec.Result = String.valueOf(result);
+                    record.add(rec);
+                    indexRecord = record.size()-1;
+                    reWrite = true;
+                }
             }
         };
 
@@ -146,5 +187,37 @@ public class MainActivity extends AppCompatActivity {
         btnUp.setOnClickListener(upEvent);
         btnDown.setOnClickListener(downEvent);
         btnEqual.setOnClickListener(EqualEvent);
+    }
+
+    private void clear()
+    {
+        txtExpression.setText("");
+        txtResult.setText("0");
+    }
+    //Fuente: https://codereview.stackexchange.com/questions/84763/evaluating-an-expression-with-integers-and-as-well-as
+    private double compute(String equation) {
+        double result = 0.0;
+        String noMinus = equation.replace("-", "+-");
+        String[] byPluses = noMinus.split("\\+");
+
+        for (String multipl : byPluses) {
+            String[] byMultipl = multipl.split("\\*");
+            double multiplResult = 1.0;
+            for (String operand : byMultipl) {
+                if (operand.contains("/")) {
+                    String[] division = operand.split("\\/");
+                    double divident = Double.parseDouble(division[0]);
+                    for (int i = 1; i < division.length; i++) {
+                        divident /= Double.parseDouble(division[i]);
+                    }
+                    multiplResult *= divident;
+                } else {
+                    multiplResult *= Double.parseDouble(operand);
+                }
+            }
+            result += multiplResult;
+        }
+
+        return result;
     }
 }

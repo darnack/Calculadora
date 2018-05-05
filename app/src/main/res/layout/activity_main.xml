@@ -65,7 +65,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="x" />
+                        android:text="*" />
                     <Button
                         android:id="@+id/btnDiv"
                         android:layout_width="wrap_content"
@@ -190,7 +190,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="," />
+                        android:text="." />
                     <Button
                         android:id="@+id/btnZero"
                         android:layout_width="wrap_content"
